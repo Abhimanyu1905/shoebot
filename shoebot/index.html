@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShoeBot - Your Footwear Assistant</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      background: url('https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.85);
+      z-index: -1;
+    }
+    .user-header {
+      background: linear-gradient(45deg, #1a2980, #26d0ce);
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .user-info {
+      display: flex;
+      gap: 15px;
+      font-size: 0.9rem;
+    }
+    .user-info div {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .user-info i {
+      font-size: 1rem;
+    }
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      overflow: hidden;
+    }
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      background: white;
+      max-height: calc(100vh - 150px);
+    }
+    .chat-header {
+      background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .chat-header i {
+      font-size: 20px;
+      margin-right: 10px;
+    }
+    .chat-header h3 {
+      margin: 0;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    .chat-box {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .message {
+      max-width: 70%;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border-radius: 15px;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+      font-size: 0.9rem;
+      line-height: 1.3;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .user-message {
+      align-self: flex-end;
+      background-color: #2575fc;
+      color: white;
+      border-bottom-right-radius: 5px;
+    }
+    .bot-message {
+      align-self: flex-start;
+      background-color: #f1f1f1;
+      color: #333;
+      border-bottom-left-radius: 5px;
+    }
+    .message-time {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.7);
+      margin-top: 3px;
+      text-align: right;
+    }
+    .bot-message .message-time {
+      color: #999;
+    }
+    .input-area {
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-top: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .input-group {
+      margin-bottom: 8px;
+    }
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+    }
+    .suggestion-btn {
+      background-color: #e9ecef;
+      border: none;
+      border-radius: 15px;
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .suggestion-btn:hover {
+      background-color: #d1d7e0;
+    }
+    .send-btn {
+      border-radius: 0 5px 5px 0;
+      background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+      border: none;
+      padding: 5px 12px;
+    }
+    .typing-indicator {
+      display: flex;
+      padding: 8px 12px;
+      background-color: #f1f1f1;
+      border-radius: 15px;
+      align-self: flex-start;
+      margin-bottom: 10px;
+      border-bottom-left-radius: 5px;
+    }
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background-color: #999;
+      border-radius: 50%;
+      margin: 0 2px;
+      animation: typingAnimation 1.4s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(1) {
+      animation-delay: 0s;
+    }
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    @keyframes typingAnimation {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-3px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="user-header">
+    <h2 style="font-size: 1.2rem; margin: 0;"><i class="fas fa-shoe-prints"></i> ShoeBot</h2>
+    <div class="user-info">
+      <div><i class="fas fa-user"></i> Abhimanyu</div>
+      <div><i class="fas fa-id-card"></i> 12301590</div>
+      <div><i class="fas fa-list-ol"></i> 59</div>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <div class="chat-container">
+      <div class="chat-header">
+        <i class="fas fa-robot"></i>
+        <h3>ShoeBot Assistant</h3>
+      </div>
+      <div class="chat-box" id="chat-box">
+        <div class="bot-message message">
+          Hi Abhimanyu! 👋 I'm ShoeBot, your personal footwear assistant. How can I help you today?
+          <div class="message-time">Just now</div>
+        </div>
+      </div>
+      <div class="input-area">
+        <div class="suggestions">
+          <div style="margin-right: 5px; font-weight: bold;">Suggestions:</div>
+          <button class="suggestion-btn" data-question="What shoes should I wear in London?">London</button>
+          <button class="suggestion-btn" data-question="Suggest shoes for a wedding">Wedding</button>
+          <button class="suggestion-btn" data-question="Suggest shoes for running">Running</button>
+          <button class="suggestion-btn" data-question="Hey">Hello</button>
+        </div>
+        <div class="input-group">
+          <input type="text" id="user-input" class="form-control" placeholder="Ask about shoes..." aria-label="Ask about shoes" style="font-size: 0.9rem; padding: 5px 10px;">
+          <button class="btn btn-primary send-btn" id="send-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chat-box");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+    const suggestionBtns = document.querySelectorAll(".suggestion-btn");
+
+    const responses = {
+      "hey": "Hey Abhimanyu! 👋 How can I assist you with your footwear needs today?",
+      "hello": "Hello there Abhimanyu! 👋 I'm here to help you find the perfect shoes for any occasion!",
+      "hi": "Hi Abhimanyu! 👋 What shoes are you looking for today?",
+      "what shoes should i wear in london": "In London, the weather can be quite unpredictable! 🌧️ I recommend:\n\n• Waterproof sneakers (like Vessi or Adidas Terrex)\n• Stylish Chelsea boots (great for both rain and style)\n• Comfortable walking shoes with good traction\n\nDon't forget to pair them with a good umbrella! ☔",
+      "suggest shoes for a wedding": "For weddings, you'll want something elegant yet comfortable. Here are my suggestions:\n\n👞 For men:\n- Oxford or Derby dress shoes in black or brown\n- Monk straps for a more modern look\n\n👠 For women:\n- Classic pumps (2-3 inch heels are most comfortable)\n- Elegant sandals for summer weddings\n- Block heels for outdoor ceremonies\n\nRemember to break them in before the big day!",
+      "suggest shoes for running": "For running, the right shoes make all the difference! 🏃‍♂️ Here are top recommendations:\n\n• Neutral runners: Nike Pegasus, Brooks Ghost\n• Stability shoes: Asics Gel-Kayano, New Balance 860\n• Max cushion: Hoka Bondi, Brooks Glycerin\n• Trail runners: Salomon Speedcross, Altra Lone Peak\n\nGet fitted at a specialty store for your perfect pair!",
+      "best shoes for travel": "Travel shoes should be comfortable, versatile and easy to slip on/off. ✈️ My top picks:\n\n• Allbirds Wool Runners (super comfortable)\n• Ecco Soft 7 (great for walking)\n• Cole Haan Zerogrand (dressy yet comfortable)\n• Skechers Go Walk (easy slip-on)\n\nLook for shoes with good arch support and breathable materials!",
+      "default": "I'm sorry, I don't have specific advice for that yet. I specialize in footwear recommendations for:\n\n• Different weather conditions\n• Special occasions\n• Sports activities\n• Travel needs\n\nTry asking about shoes for a specific purpose!"
+    };
+
+    function getCurrentTime() {
+      const now = new Date();
+      return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function addMessage(text, sender) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `message ${sender}-message`;
+      
+      messageDiv.innerHTML = `
+        ${text}
+        <div class="message-time">${getCurrentTime()}</div>
+      `;
+      
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      const typingDiv = document.createElement("div");
+      typingDiv.className = "typing-indicator";
+      typingDiv.id = "typing-indicator";
+      typingDiv.innerHTML = `
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      `;
+      chatBox.appendChild(typingDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const typingIndicator = document.getElementById("typing-indicator");
+      if (typingIndicator) {
+        typingIndicator.remove();
+      }
+    }
+
+    function getBotResponse(input) {
+      const key = input.toLowerCase();
+      
+      if (responses[key]) {
+        return responses[key];
+      }
+      
+      // Check for partial matches
+      if (key.includes("london") || key.includes("rain") || key.includes("uk")) {
+        return responses["what shoes should i wear in london"];
+      }
+      if (key.includes("wedding") || key.includes("formal") || key.includes("ceremony")) {
+        return responses["suggest shoes for a wedding"];
+      }
+      if (key.includes("run") || key.includes("jog") || key.includes("marathon")) {
+        return responses["suggest shoes for running"];
+      }
+      if (key.includes("travel") || key.includes("trip") || key.includes("vacation")) {
+        return responses["best shoes for travel"];
+      }
+      
+      return responses["default"];
+    }
+
+    function handleMessage() {
+      const input = userInput.value.trim();
+      if (!input) return;
+      
+      addMessage(input, "user");
+      userInput.value = "";
+      
+      showTypingIndicator();
+      
+      setTimeout(() => {
+        hideTypingIndicator();
+        const reply = getBotResponse(input);
+        addMessage(reply, "bot");
+      }, 1000 + Math.random() * 1000); // Random delay between 1-2 seconds
+    }
+
+    // Event listeners
+    sendBtn.addEventListener("click", handleMessage);
+    userInput.addEventListener("keypress", e => {
+      if (e.key === "Enter") handleMessage();
+    });
+
+    suggestionBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        userInput.value = btn.getAttribute("data-question");
+        userInput.focus();
+      });
+    });
+
+    // Initial greeting
+    setTimeout(() => {
+      addMessage("Try asking me about shoes for different occasions, weather conditions, or activities!", "bot");
+    }, 1500);
+  </script>
+</body>
+</html>
